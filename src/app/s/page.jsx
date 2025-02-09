@@ -1,11 +1,15 @@
 'use client'
 
+import ChatRoom from "@/components/ChatRoom";
 import { WS_URL } from "@/utils/environment";
 import { useEffect, useState } from "react";
+import SplitPane from "react-split-pane";
+import './styles.css'
 
 const Page = () => {
     const [ws, setWs] = useState(null);
     const [rooms, setRooms] = useState([])
+    const [selectedRoom, setSelectedRoom] = useState("");
 
     const handleNewChat = (data) => {
         console.log({ data })
@@ -79,15 +83,19 @@ const Page = () => {
 
     return (
         <div className="">
-            {
-                rooms.map((item, i) => {
-                    return (
-                        <div key={i} className="px-4 py-2 border-b">
+            <SplitPane split="vertical" minSize={400} defaultSize={300} maxSize={600} style={{ position: "static" }}>
+                <div className="overflow-auto bg-gray-100">
+                    {rooms.map((item, i) => (
+                        <div key={i} className="px-4 py-2 border-b cursor-pointer hover:bg-gray-200"
+                            onClick={() => setSelectedRoom(item)}>
                             {item.customer_name}
                         </div>
-                    )
-                })
-            }
+                    ))}
+                </div>
+                <div className="">
+                    <ChatRoom data={selectedRoom} />
+                </div>
+            </SplitPane>
         </div>
     )
 }

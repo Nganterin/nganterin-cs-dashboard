@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Nganterin | Customer Service",
+  title: "Temenin | Customer Service",
   description: "Customer Service Dashboard",
 };
 
