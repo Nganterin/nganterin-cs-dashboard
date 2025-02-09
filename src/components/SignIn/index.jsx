@@ -21,7 +21,7 @@ export function SignIn() {
                 password: e.target.password.value
             };
 
-            const res = await fetch(BASE_URL + `/auth/login`, {
+            const res = await fetch(BASE_URL + `/agent/auth/signin`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -32,7 +32,7 @@ export function SignIn() {
             const data = await res.json();
             if (res.ok) {
                 localStorage.setItem("token", data.body);
-                window.location.href = "/dashboard";
+                window.location.href = "/s";
             } else {
                 toast.error(data.error);
             }
