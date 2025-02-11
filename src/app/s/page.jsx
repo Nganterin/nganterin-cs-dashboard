@@ -12,35 +12,41 @@ const Page = () => {
     const [selectedRoom, setSelectedRoom] = useState("");
 
     const handleNewChat = (data) => {
-        console.log({ data })
-
         setRooms(prevRooms => {
             const existingRoomIndex = prevRooms.findIndex(room =>
-                room.customer_uuid === data.customer_uuid
+                room.customer_uuid === data.customer.uuid
             );
 
+            let updatedRooms;
             if (existingRoomIndex === -1) {
-                return [...prevRooms, {
-                    customer_name: data.sender_name,
-                    customer_uuid: data.customer_uuid,
-                    messages: [data]
+                updatedRooms = [...prevRooms, {
+                    customer_name: data.customer.name,
+                    customer_uuid: data.customer.uuid,
+                    data: [data]
                 }];
             } else {
-                const updatedRooms = [...prevRooms];
+                updatedRooms = [...prevRooms];
                 updatedRooms[existingRoomIndex] = {
                     ...updatedRooms[existingRoomIndex],
-                    messages: [...updatedRooms[existingRoomIndex].messages, data]
+                    data: [...updatedRooms[existingRoomIndex].data, data]
                 };
-                return updatedRooms;
+
+                if (selectedRoom && selectedRoom.customer_uuid == data.customer.uuid) {
+                    setSelectedRoom(updatedRooms[existingRoomIndex]);
+                }
             }
+
+            localStorage.setItem("rooms", JSON.stringify(updatedRooms));
+            return updatedRooms;
         });
-    }
+    };
 
     useEffect(() => {
-        console.log({ rooms })
-    }, [rooms])
+        const storedRooms = localStorage.getItem("rooms");
+        if (storedRooms) {
+            setRooms(JSON.parse(storedRooms));
+        }
 
-    useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
@@ -83,12 +89,22 @@ const Page = () => {
 
     return (
         <div className="">
-            <SplitPane split="vertical" minSize={400} defaultSize={300} maxSize={600} style={{ position: "static" }}>
-                <div className="overflow-auto bg-gray-100">
+            <SplitPane split="vertical" minSize={400} defaultSize={400} maxSize={600} style={{ position: "static" }}>
+                <div className="overflow-auto">
                     {rooms.map((item, i) => (
-                        <div key={i} className="px-4 py-2 border-b cursor-pointer hover:bg-gray-200"
+                        <div key={i} className="px-4 py-2 border-b cursor-pointer hover:bg-zinc-800/70"
                             onClick={() => setSelectedRoom(item)}>
-                            {item.customer_name}
+                            <p className="font-poppins text-lg font-semibold">
+                                {item.customer_name}
+                            </p>
+                            <div className="flex flex-row justify-between">
+                                <p className="text-sm">
+                                    {item.data[item.data.length - 1].message}
+                                </p>
+                                <p className="text-sm">
+                                    {item.data[item.data.length - 1].humanized_created_at}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>

@@ -1,7 +1,7 @@
 const Navbar = () => {
     return (
-        <div className="sticky top-0 z-50 w-full px-6 py-3 border-b border-zinc-700 bg-black">
-            <div className="text-xl font-semibold">
+        <div className="sticky top-0 z-50 w-full p-6 border-b border-zinc-700 bg-black">
+            <div className="text-2xl font-poppins">
                 Temenin
             </div>
         </div>
