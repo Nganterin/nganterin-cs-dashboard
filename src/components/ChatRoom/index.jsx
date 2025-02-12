@@ -1,9 +1,11 @@
-import { Button, Textarea } from "@heroui/react"
-import { ChatBubble } from "../ChatBubble"
-import { useState } from "react";
+import { Button, Textarea } from "@heroui/react";
+import { ChatBubble } from "../ChatBubble";
+import { useState, useEffect, useRef } from "react";
 
 const ChatRoom = ({ data, ws }) => {
-    const [message, setMessage] = useState("")
+    const [message, setMessage] = useState("");
+    const chatContainerRef = useRef(null);
+
     const sendMessage = (e) => {
         e.preventDefault();
         if (!ws || ws.readyState !== WebSocket.OPEN) {
@@ -19,9 +21,18 @@ const ChatRoom = ({ data, ws }) => {
         setMessage("");
     };
 
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTo({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }, [data.data]);
+
     return (
         <div className="h-[calc(100vh-81px)] flex flex-col py-3">
-            <div className="flex-grow space-y-4 overflow-auto px-8 pb-2">
+            <div ref={chatContainerRef} className="flex-grow space-y-4 overflow-auto px-8 pb-2">
                 {
                     data?.data?.map((item, index) => {
                         return (
@@ -40,4 +51,4 @@ const ChatRoom = ({ data, ws }) => {
     )
 }
 
-export default ChatRoom
+export default ChatRoom;
