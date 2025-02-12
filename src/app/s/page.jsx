@@ -14,31 +14,36 @@ const Page = () => {
     const ws = useRef(null);
     const reconnectTimeout = useRef(null);
     const reconnectAttempts = useRef(0);
+    const pingInterval = useRef(null); // Ref to store the ping interval ID
     const [rooms, setRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState("");
     const [isConnected, setIsConnected] = useState(false);
-    const isUnmounting = useRef(false);  // Add this to track component unmounting
+    const isUnmounting = useRef(false); // Track component unmounting
 
+    // Handle new chat messages
     const handleNewChat = useCallback((data) => {
         localStorage.setItem("last", data.uuid);
 
-        setRooms(prevRooms => {
-            const existingRoomIndex = prevRooms.findIndex(room =>
-                room.customer_uuid === data.customer.uuid
+        setRooms((prevRooms) => {
+            const existingRoomIndex = prevRooms.findIndex(
+                (room) => room.customer_uuid === data.customer.uuid
             );
 
             let updatedRooms;
             if (existingRoomIndex === -1) {
-                updatedRooms = [...prevRooms, {
-                    customer_name: data.customer.name,
-                    customer_uuid: data.customer.uuid,
-                    data: [data]
-                }];
+                updatedRooms = [
+                    ...prevRooms,
+                    {
+                        customer_name: data.customer.name,
+                        customer_uuid: data.customer.uuid,
+                        data: [data],
+                    },
+                ];
             } else {
                 updatedRooms = [...prevRooms];
                 updatedRooms[existingRoomIndex] = {
                     ...updatedRooms[existingRoomIndex],
-                    data: [...updatedRooms[existingRoomIndex].data, data]
+                    data: [...updatedRooms[existingRoomIndex].data, data],
                 };
 
                 if (selectedRoom && selectedRoom.customer_uuid === data.customer.uuid) {
@@ -51,9 +56,9 @@ const Page = () => {
         });
     }, [selectedRoom]);
 
+    // WebSocket connection logic
     const connect = useCallback(() => {
-        // Don't attempt to connect if we're unmounting
-        if (isUnmounting.current) return;
+        if (isUnmounting.current) return; // Don't connect if unmounting
 
         const token = localStorage.getItem("token");
         const last = localStorage.getItem("last");
@@ -65,7 +70,7 @@ const Page = () => {
 
         // Close existing connection if it's still open
         if (ws.current?.readyState === WebSocket.OPEN) {
-            return;  // Don't reconnect if we're already connected
+            return; // Don't reconnect if already connected
         }
 
         try {
@@ -78,12 +83,19 @@ const Page = () => {
                 }
                 console.log("WebSocket connected");
                 setIsConnected(true);
-                reconnectAttempts.current = 0;
+                reconnectAttempts.current = 0; // Reset reconnection attempts
 
                 if (reconnectTimeout.current) {
                     clearTimeout(reconnectTimeout.current);
                     reconnectTimeout.current = null;
                 }
+
+                // Start the ping interval
+                pingInterval.current = setInterval(() => {
+                    if (ws.current?.readyState === WebSocket.OPEN) {
+                        ws.current.send(JSON.stringify({ type: "ping" }));
+                    }
+                }, 30000); // Send ping every 30 seconds
             };
 
             ws.current.onmessage = (e) => {
@@ -101,12 +113,24 @@ const Page = () => {
                 if (isUnmounting.current) return;
                 console.error("WebSocket error:", err);
                 setIsConnected(false);
+
+                // Attempt to reconnect immediately on error
+                if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+                    reconnectAttempts.current += 1;
+                    connect();
+                }
             };
 
             ws.current.onclose = (event) => {
                 if (isUnmounting.current) return;
                 console.log("WebSocket connection closed", event);
                 setIsConnected(false);
+
+                // Clear the ping interval
+                if (pingInterval.current) {
+                    clearInterval(pingInterval.current);
+                    pingInterval.current = null;
+                }
 
                 if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
                     const delay = INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current);
@@ -128,8 +152,9 @@ const Page = () => {
                 toast.error("Failed to establish connection");
             }
         }
-    }, []);
+    }, [handleNewChat]);
 
+    // Initialize WebSocket connection and load stored rooms
     useEffect(() => {
         try {
             const storedRooms = localStorage.getItem("rooms");
@@ -141,13 +166,16 @@ const Page = () => {
             toast.error("Error loading chat history");
         }
 
-        isUnmounting.current = false;  // Reset unmounting flag
+        isUnmounting.current = false; // Reset unmounting flag
         connect();
 
         return () => {
-            isUnmounting.current = true;  // Set unmounting flag
+            isUnmounting.current = true; // Set unmounting flag
             if (reconnectTimeout.current) {
                 clearTimeout(reconnectTimeout.current);
+            }
+            if (pingInterval.current) {
+                clearInterval(pingInterval.current);
             }
             if (ws.current) {
                 ws.current.close();
@@ -157,9 +185,11 @@ const Page = () => {
 
     return (
         <div className="relative h-screen">
-            <div className={`fixed top-4 right-4 z-50 px-3 py-1 rounded-full text-sm text-white ${isConnected ? 'bg-green-500' : 'bg-rose-700'
-                }`}>
-                {isConnected ? 'Connected' : 'Disconnected'}
+            <div
+                className={`fixed top-4 right-4 z-50 px-3 py-1 rounded-full text-sm text-white ${isConnected ? "bg-green-500" : "bg-rose-700"
+                    }`}
+            >
+                {isConnected ? "Connected" : "Disconnected"}
             </div>
 
             <SplitPane
@@ -173,7 +203,7 @@ const Page = () => {
                     {rooms.map((item, i) => (
                         <div
                             key={i}
-                            className={`px-4 py-2 border-b cursor-pointer hover:bg-zinc-800/70 ${selectedRoom?.customer_uuid === item.customer_uuid ? 'bg-zinc-800' : ''
+                            className={`px-4 py-2 border-b cursor-pointer hover:bg-zinc-800/70 ${selectedRoom?.customer_uuid === item.customer_uuid ? "bg-zinc-800" : ""
                                 }`}
                             onClick={() => setSelectedRoom(item)}
                         >
