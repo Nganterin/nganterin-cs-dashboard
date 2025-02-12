@@ -1,6 +1,8 @@
-import { Button, Textarea } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { ChatBubble } from "../ChatBubble";
 import { useState, useEffect, useRef } from "react";
+import { PaperPlaneTilt } from "@phosphor-icons/react";
+import { toast } from "sonner";
 
 const ChatRoom = ({ data, ws }) => {
     const [message, setMessage] = useState("");
@@ -43,8 +45,8 @@ const ChatRoom = ({ data, ws }) => {
             </div>
             <div className="bg-black h-max w-full sticky bottom-0 flex flex-row items-center gap-4 px-8 py-3">
                 <form onSubmit={sendMessage} className="w-full flex flex-row items-start gap-4 ">
-                    <Textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-[calc(100%-200px)]" />
-                    <Button type="submit" size="lg">Send</Button>
+                    <Input value={message} onChange={(e) => setMessage(e.target.value)} className="w-[calc(100%-200px)]" size="lg" />
+                    <Button type="submit" size="lg"><PaperPlaneTilt size={26} /></Button>
                 </form>
             </div>
         </div>
