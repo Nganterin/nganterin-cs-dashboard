@@ -17,6 +17,7 @@ const Page = () => {
     const [rooms, setRooms] = useState([]);
     const [selectedRoom, setSelectedRoom] = useState("");
     const [isConnected, setIsConnected] = useState(false);
+    const isUnmounting = useRef(false);  // Add this to track component unmounting
 
     const handleNewChat = useCallback((data) => {
         localStorage.setItem("last", data.uuid);
@@ -51,6 +52,9 @@ const Page = () => {
     }, [selectedRoom]);
 
     const connect = useCallback(() => {
+        // Don't attempt to connect if we're unmounting
+        if (isUnmounting.current) return;
+
         const token = localStorage.getItem("token");
         const last = localStorage.getItem("last");
 
@@ -59,14 +63,19 @@ const Page = () => {
             return;
         }
 
-        if (ws.current) {
-            ws.current.close();
+        // Close existing connection if it's still open
+        if (ws.current?.readyState === WebSocket.OPEN) {
+            return;  // Don't reconnect if we're already connected
         }
 
         try {
             ws.current = new WebSocket(`${WS_URL}/ws/chat?token=${token}&last=${last}`);
 
             ws.current.onopen = () => {
+                if (isUnmounting.current) {
+                    ws.current?.close();
+                    return;
+                }
                 console.log("WebSocket connected");
                 setIsConnected(true);
                 reconnectAttempts.current = 0;
@@ -78,6 +87,7 @@ const Page = () => {
             };
 
             ws.current.onmessage = (e) => {
+                if (isUnmounting.current) return;
                 try {
                     const data = JSON.parse(e.data);
                     handleNewChat(data);
@@ -88,14 +98,15 @@ const Page = () => {
             };
 
             ws.current.onerror = (err) => {
+                if (isUnmounting.current) return;
                 console.error("WebSocket error:", err);
                 setIsConnected(false);
             };
 
             ws.current.onclose = (event) => {
+                if (isUnmounting.current) return;
                 console.log("WebSocket connection closed", event);
                 setIsConnected(false);
-
 
                 if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
                     const delay = INITIAL_RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current);
@@ -112,8 +123,10 @@ const Page = () => {
                 }
             };
         } catch (err) {
-            console.error("Error creating WebSocket connection:", err);
-            toast.error("Failed to establish connection");
+            if (!isUnmounting.current) {
+                console.error("Error creating WebSocket connection:", err);
+                toast.error("Failed to establish connection");
+            }
         }
     }, []);
 
@@ -128,10 +141,11 @@ const Page = () => {
             toast.error("Error loading chat history");
         }
 
-
+        isUnmounting.current = false;  // Reset unmounting flag
         connect();
 
         return () => {
+            isUnmounting.current = true;  // Set unmounting flag
             if (reconnectTimeout.current) {
                 clearTimeout(reconnectTimeout.current);
             }
