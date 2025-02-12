@@ -1,10 +1,27 @@
 import { Button, Textarea } from "@heroui/react"
 import { ChatBubble } from "../ChatBubble"
+import { useState } from "react";
 
-const ChatRoom = ({ data }) => {
+const ChatRoom = ({ data, ws }) => {
+    const [message, setMessage] = useState("")
+    const sendMessage = (e) => {
+        e.preventDefault();
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            toast.error("WebSocket not connected");
+            return;
+        }
+
+        const payload = JSON.stringify({
+            customer_uuid: data.customer_uuid,
+            message: message
+        });
+        ws.send(payload);
+        setMessage("");
+    };
+
     return (
-        <div className="h-[calc(100vh-81px)] relative px-4 py-3">
-            <div className="flex flex-col gap-4">
+        <div className="h-[calc(100vh-81px)] flex flex-col px-8 py-3">
+            <div className="flex-grow space-y-4 overflow-auto pb-2">
                 {
                     data?.data?.map((item, index) => {
                         return (
@@ -13,11 +30,11 @@ const ChatRoom = ({ data }) => {
                     })
                 }
             </div>
-            <div className="absolute w-full bottom-0 flex flex-row items-center gap-4 mb-3">
-                <div className="w-full flex flex-row items-start gap-4 px-8 ">
-                    <Textarea className="w-full" />
-                    <Button className="" size="lg">Send</Button>
-                </div>
+            <div className="bg-black h-max w-full sticky bottom-0 flex flex-row items-center gap-4 py-3">
+                <form onSubmit={sendMessage} className="w-full flex flex-row items-start gap-4 ">
+                    <Textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-[calc(100%-200px)]" />
+                    <Button type="submit" size="lg">Send</Button>
+                </form>
             </div>
         </div>
     )

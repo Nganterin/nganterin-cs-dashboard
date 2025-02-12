@@ -5,6 +5,7 @@ import { WS_URL } from "@/utils/environment";
 import { useEffect, useState } from "react";
 import SplitPane from "react-split-pane";
 import './styles.css'
+import { toast } from "sonner";
 
 const Page = () => {
     const [ws, setWs] = useState(null);
@@ -12,6 +13,8 @@ const Page = () => {
     const [selectedRoom, setSelectedRoom] = useState("");
 
     const handleNewChat = (data) => {
+        localStorage.setItem("last", data.uuid)
+
         setRooms(prevRooms => {
             const existingRoomIndex = prevRooms.findIndex(room =>
                 room.customer_uuid === data.customer.uuid
@@ -50,16 +53,22 @@ const Page = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const socket = new WebSocket(`${WS_URL}/ws/chat?token=${token}`);
+        const last = localStorage.getItem("last");
+        const socket = new WebSocket(`${WS_URL}/ws/chat?token=${token}&last=${last}`);
 
         socket.onopen = () => {
             console.log("WebSocket connected");
             setWs(socket);
         };
 
+        socket.addEventListener('ping', (event) => {
+            socket.pong();
+          });
+
         socket.onmessage = (e) => {
             const data = JSON.parse(e.data);
             handleNewChat(data)
+            toast.success("New message received");
         };
 
         socket.onerror = (err) => {
@@ -67,6 +76,7 @@ const Page = () => {
         };
 
         socket.onclose = () => {
+            toast.error("WebSocket connection closed");
             console.log("WebSocket connection closed");
         };
 
@@ -74,18 +84,6 @@ const Page = () => {
             socket.close();
         };
     }, []);
-
-    const sendMessage = (e) => {
-        e.preventDefault();
-        if (!ws || ws.readyState !== WebSocket.OPEN) {
-            toast.error("WebSocket not connected");
-            return;
-        }
-
-        const payload = JSON.stringify({ message });
-        ws.send(payload);
-        setMessage("");
-    };
 
     return (
         <div className="">
@@ -109,7 +107,7 @@ const Page = () => {
                     ))}
                 </div>
                 <div className="">
-                    <ChatRoom data={selectedRoom} />
+                    <ChatRoom ws={ws} data={selectedRoom} />
                 </div>
             </SplitPane>
         </div>
