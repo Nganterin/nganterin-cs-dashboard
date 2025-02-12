@@ -20,8 +20,8 @@ const ChatRoom = ({ data, ws }) => {
     };
 
     return (
-        <div className="h-[calc(100vh-81px)] flex flex-col px-8 py-3">
-            <div className="flex-grow space-y-4 overflow-auto pb-2">
+        <div className="h-[calc(100vh-81px)] flex flex-col py-3">
+            <div className="flex-grow space-y-4 overflow-auto px-8 pb-2">
                 {
                     data?.data?.map((item, index) => {
                         return (
@@ -30,7 +30,7 @@ const ChatRoom = ({ data, ws }) => {
                     })
                 }
             </div>
-            <div className="bg-black h-max w-full sticky bottom-0 flex flex-row items-center gap-4 py-3">
+            <div className="bg-black h-max w-full sticky bottom-0 flex flex-row items-center gap-4 px-8 py-3">
                 <form onSubmit={sendMessage} className="w-full flex flex-row items-start gap-4 ">
                     <Textarea value={message} onChange={(e) => setMessage(e.target.value)} className="w-[calc(100%-200px)]" />
                     <Button type="submit" size="lg">Send</Button>
