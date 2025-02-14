@@ -33,7 +33,12 @@ const ChatRoom = ({ data, ws }) => {
     }, [data.data]);
 
     return (
-        <div className="h-[calc(100vh-81px)] flex flex-col py-3">
+        <div className="h-screen flex flex-col pb-3">
+            <div className="p-6 border-b border-slate-700 mb-3">
+                <p className="text-lg font-bold">
+                    {data.customer_name}
+                </p>
+            </div>
             <div ref={chatContainerRef} className="flex-grow space-y-4 overflow-auto px-8 pb-2">
                 {
                     data?.data?.map((item, index) => {
@@ -43,10 +48,12 @@ const ChatRoom = ({ data, ws }) => {
                     })
                 }
             </div>
-            <div className="bg-black h-max w-full sticky bottom-0 flex flex-row items-center gap-4 px-8 py-3">
+            <div className="bg-slate-900 h-max w-full sticky bottom-0 flex flex-row items-center gap-4 px-8 py-3">
                 <form onSubmit={sendMessage} className="w-full flex flex-row items-start gap-4 ">
-                    <Input value={message} onChange={(e) => setMessage(e.target.value)} className="w-[calc(100%-200px)]" size="lg" />
-                    <Button type="submit" size="lg"><PaperPlaneTilt size={26} /></Button>
+                    <Input classNames={{
+                        inputWrapper: ["bg-gradient-to-br", "from-slate-700", "to-slate-800"]
+                    }} value={message} onChange={(e) => setMessage(e.target.value)} className="flex-grow" size="lg" />
+                    <Button className="bg-gradient-to-br from-slate-700 to-slate-800" type="submit" size="lg"><PaperPlaneTilt size={26} /></Button>
                 </form>
             </div>
         </div>

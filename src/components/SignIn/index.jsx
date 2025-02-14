@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { BASE_URL } from "@/utils/environment";
 import { Spinner } from "@heroui/react";
 import Link from "next/link";
+import { HoverBorderGradient } from "../ui/hover-border-gradient";
 
 export function SignIn() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -45,8 +46,10 @@ export function SignIn() {
     };
 
     return (
-        (<div
-            className="max-w-md w-full mx-auto rounded-sm p-4 md:p-8 shadow-input bg-white dark:bg-black">
+        <HoverBorderGradient
+            as="div"
+            className="max-w-md w-full mx-auto rounded-lg p-4 md:p-8 bg-gradient-to-br from-purple-800 to-pink-800 space-x-2 shadow-lg shadow-pink-700/70"
+        >
             <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
                 Sign in to Temenin Dashboard
             </h2>
@@ -56,18 +59,32 @@ export function SignIn() {
             <form className="my-8" onSubmit={handleSubmit}>
                 <LabelInputContainer className="mb-4">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" placeholder="elxanny8013" type="username" />
+                    <input
+                        required
+                        id="username"
+                        name="username"
+                        placeholder="elxanny8013"
+                        type="username"
+                        className="px-4 py-2 rounded-sm bg-transparent border-white border placeholder:text-purple-500"
+                    />
                 </LabelInputContainer>
                 <LabelInputContainer className="mb-4">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" name="password" placeholder="••••••••" type="password" />
+                    <input
+                        required
+                        id="password"
+                        name="password"
+                        placeholder="••••••••"
+                        type="password"
+                        className="px-4 py-2 rounded-sm bg-transparent border-white border placeholder:text-purple-500"
+                    />
                 </LabelInputContainer>
 
                 <button
-                    className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
+                    className="bg-gradient-to-br relative group/btn from-slate-50 dark:from-slate-50 dark:to-slate-50 to-neutral-600 block dark:bg-slate-800 w-full text-pink-900 rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--slate-800)_inset,0px_-1px_0px_0px_var(--slate-800)_inset]"
                     type="submit">
                     <div className="flex flex-row gap-4 items-center justify-center">
-                        <Spinner color="white" size="sm" className={`${isLoading ? "block" : "hidden"}`} />
+                        <Spinner color="current" size="sm" className={`${isLoading ? "block" : "hidden"}`} />
                         <p>
                             Sign in &rarr;
                         </p>
@@ -77,7 +94,7 @@ export function SignIn() {
             </form>
 
             <Link href={"/auth/forgot"} className="text-xs text-right hover:underline">Forgot password?</Link>
-        </div>)
+        </HoverBorderGradient>
     );
 }
 

@@ -1,14 +1,15 @@
-import Navbar from "@/components/Navbar"
+'use client'
+
+import withAuth from "./withAuth"
 
 const Layout = ({ children }) => {
     return (
         <div>
-            <Navbar />
-            <div className="h-[calc(100vh-81px)] overflow-hidden">
+            <div className="h-screen overflow-hidden">
                 {children}
             </div>
         </div>
     )
 }
 
-export default Layout
+export default withAuth(Layout)
