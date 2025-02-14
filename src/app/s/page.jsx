@@ -204,7 +204,7 @@ const Page = () => {
                 maxSize={600}
                 style={{ position: "static" }}
             >
-                <div className="h-screen">
+                <div className="h-[calc(100vh-81px)]">
                     <div className="h-full overflow-y-scroll">
                         {rooms.map((item, i) => (
                             <div
@@ -226,6 +226,9 @@ const Page = () => {
                                 </div>
                             </div>
                         ))}
+                        <div className="px-4 py-4 border-b text-center text-xs text-opacity-70 bg-zinc-800">
+                            End of customers
+                        </div>
                     </div>
                 </div>
                 <div className="h-screen">
