@@ -204,27 +204,29 @@ const Page = () => {
                 maxSize={600}
                 style={{ position: "static" }}
             >
-                <div className="overflow-auto h-screen">
-                    {rooms.map((item, i) => (
-                        <div
-                            key={i}
-                            className={`px-4 py-2 border-b cursor-pointer hover:bg-zinc-800/70 ${selectedRoom?.customer_uuid === item.customer_uuid ? "bg-zinc-800" : ""
-                                }`}
-                            onClick={() => setSelectedRoom(item)}
-                        >
-                            <p className="font-poppins text-lg font-semibold">
-                                {item.customer_name}
-                            </p>
-                            <div className="flex flex-row justify-between">
-                                <p className="text-sm truncate max-w-[200px]">
-                                    {item.data[item.data.length - 1].message}
+                <div className="h-screen">
+                    <div className="h-full overflow-y-scroll">
+                        {rooms.map((item, i) => (
+                            <div
+                                key={i}
+                                className={`px-4 py-2 border-b cursor-pointer hover:bg-zinc-800/70 ${selectedRoom?.customer_uuid === item.customer_uuid ? "bg-zinc-800" : ""
+                                    }`}
+                                onClick={() => setSelectedRoom(item)}
+                            >
+                                <p className="font-poppins text-lg font-semibold">
+                                    {item.customer_name}
                                 </p>
-                                <p className="text-sm text-gray-400">
-                                    {item.data[item.data.length - 1].humanized_created_at}
-                                </p>
+                                <div className="flex flex-row justify-between">
+                                    <p className="text-sm truncate max-w-[200px]">
+                                        {item.data[item.data.length - 1].message}
+                                    </p>
+                                    <p className="text-sm text-gray-400">
+                                        {item.data[item.data.length - 1].humanized_created_at}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
                 <div className="h-screen">
                     <ChatRoom
