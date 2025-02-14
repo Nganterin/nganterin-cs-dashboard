@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { BASE_URL } from "@/utils/environment";
 import { Spinner } from "@heroui/react";
+import Link from "next/link";
 
 export function SignIn() {
     const [isLoading, setIsLoading] = React.useState(false);
@@ -45,7 +46,7 @@ export function SignIn() {
 
     return (
         (<div
-            className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+            className="max-w-md w-full mx-auto rounded-sm p-4 md:p-8 shadow-input bg-white dark:bg-black">
             <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
                 Sign in to Temenin Dashboard
             </h2>
@@ -74,6 +75,8 @@ export function SignIn() {
                     <BottomGradient />
                 </button>
             </form>
+
+            <Link href={"/auth/forgot"} className="text-xs text-right hover:underline">Forgot password?</Link>
         </div>)
     );
 }
