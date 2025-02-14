@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { BASE_URL } from "@/utils/environment";
