@@ -6,6 +6,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import SplitPane from "react-split-pane";
 import './styles.css'
 import { toast } from "sonner";
+import { FormatTime } from "@/utils/time_format";
 
 const MAX_RECONNECT_ATTEMPTS = 5;
 const INITIAL_RECONNECT_DELAY = 5000;
@@ -220,8 +221,8 @@ const Page = () => {
                                     <p className="text-sm truncate max-w-[200px]">
                                         {item.data[item.data.length - 1].message}
                                     </p>
-                                    <p className="text-sm text-gray-400">
-                                        {item.data[item.data.length - 1].humanized_created_at}
+                                    <p className="text-xs text-gray-400 whitespace-nowrap pl-2">
+                                        {FormatTime(item.data[item.data.length - 1].created_at)}
                                     </p>
                                 </div>
                             </div>
